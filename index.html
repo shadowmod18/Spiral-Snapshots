@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpiralSnapshots</title>
+    <style>
+        :root {
+            --main-color: #4CAF50;
+            --secondary-color: #FF5733;
+            --accent-color: #3498DB;
+            --background-color: #f0f0f0;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: url('https://img.freepik.com/premium-photo/close-up-green-light-shining-black-background-generative-ai_900833-13313.jpg') no-repeat center center fixed;
+            background-size: cover;
+            transition: background-color 0.5s, background-image 0.5s;
+        }
+        header {
+            background-color: var(--main-color);
+            color: white;
+            text-align: center;
+            padding: 1em;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            animation: slideDown 1s ease-out;
+        }
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+        h1 {
+            font-size: 2em;
+            animation: colorChange 3s infinite alternate;
+        }
+        @keyframes colorChange {
+            0% { color: var(--main-color); }
+            50% { color: var(--secondary-color); }
+            100% { color: var(--accent-color); }
+        }
+        .menu-icon {
+            position: absolute;
+            top: 1em;
+            left: 1em;
+            cursor: pointer;
+        }
+        .menu-icon div {
+            width: 25px;
+            height: 3px;
+            background-color: white;
+            margin: 5px 0;
+            transition: 0.4s;
+        }
+        .search-bar {
+            margin: 1em;
+            animation: fadeIn 1s ease-in;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 0.5em;
+            font-size: 1em;
+            border: 2px solid var(--main-color);
+            border-radius: 5px;
+            transition: border-color 0.3s;
+        }
+        .search-bar input:focus {
+            border-color: var(--accent-color);
+        }
+        .grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            flex-grow: 1;
+            transition: transform 0.5s;
+        }
+        .gallery {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-grow: 1;
+            transition: transform 0.5s;
+        }
+        .grid-item, .gallery-item {
+            position: relative;
+            width: 45%;
+            margin: 1em 0;
+            transition: transform 0.3s, box-shadow 0.3s;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .grid-item img, .gallery-item img {
+            width: 100%;
+            height: auto;
+            transition: transform 0.3s;
+        }
+        .grid-item:hover img, .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+        .grid-item:hover, .gallery-item:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .grid-item .title {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            width: 100%;
+            text-align: left;
+            padding: 0.5em;
+            transition: background 0.3s;
+        }
+        .grid-item:hover .title, .gallery-item:hover .title {
+            background: rgba(0, 0, 0, 0.7);
+        }
+        .back-button {
+            margin: 1em;
+            text-align: left;
+        }
+        .back-button button {
+            padding: 0.5em 1em;
+            font-size: 1em;
+            border: none;
+            background-color: var(--main-color);
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .back-button button:hover {
+            background-color: darken(var(--main-color), 10%);
+            transform: scale(1.05);
+        }
+        .hidden {
+            display: none;
+        }
+        .floating-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.5s;
+        }
+        .floating-menu.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        .floating-menu-content {
+            background: white;
+            padding: 2em;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            animation: zoomIn 0.5s ease-out;
+        }
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .floating-menu-content button {
+            margin: 0.5em;
+            padding: 0.5em 1em;
+            font-size: 1em;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .floating-menu-content button:hover {
+            background-color: #ddd;
+            transform: scale(1.05);
+        }
+        .image-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.5s;
+        }
+        .image-modal.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        .image-modal-content {
+            position: relative;
+            background: white;
+            padding: 1em;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            animation: zoomIn 0.5s ease-out;
+        }
+        .image-modal-content img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 10px;
+        }
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: transparent;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 1.2em;
+            line-height: 30px;
+            text-align: center;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuIcon = document.querySelector('.menu-icon');
+            const floatingMenu = document.querySelector('.floating-menu');
+            const colorButtons = document.querySelectorAll('.color-button');
+            const imageModals = document.querySelectorAll('.image-modal');
+            const galleryItems = document.querySelectorAll('.gallery-item img');
+
+            menuIcon.addEventListener('click', () => {
+                floatingMenu.classList.toggle('show');
+            });
+
+            floatingMenu.addEventListener('click', (e) => {
+                if (e.target === floatingMenu) {
+                    floatingMenu.classList.remove('show');
+                }
+            });
+
+            colorButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const color = button.dataset.color;
+                    const background = button.dataset.background;
+                    document.documentElement.style.setProperty('--main-color', color);
+                    document.body.style.backgroundImage = `url('${background}')`;
+                    localStorage.setItem('mainColor', color);
+                    localStorage.setItem('backgroundImage', background);
+                });
+            });
+
+                        colorButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const color = button.dataset.color;
+                    const background = button.dataset.background;
+                    document.documentElement.style.setProperty('--main-color', color);
+                    document.body.style.backgroundImage = `url('${background}')`;
+                    localStorage.setItem('mainColor', color);
+                    localStorage.setItem('backgroundImage', background);
+                });
+            });
+
+            galleryItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const modal = document.querySelector(`#modal-${item.alt}`);
+                    modal.classList.add('show');
+                });
+            });
+
+            imageModals.forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal || e.target.classList.contains('close-modal')) {
+                        modal.classList.remove('show');
+                    }
+                });
+            });
+
+            const savedColor = localStorage.getItem('mainColor');
+            const savedBackground = localStorage.getItem('backgroundImage');
+            if (savedColor) {
+                document.documentElement.style.setProperty('--main-color', savedColor);
+            }
+            if (savedBackground) {
+                document.body.style.backgroundImage = `url('${savedBackground}')`;
+            }
+        });
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(sectionId).classList.remove('hidden');
+        }
+
+        function filterItems() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            document.querySelectorAll('.grid-item').forEach(item => {
+                const title = item.querySelector('.title').textContent.toLowerCase();
+                if (title.includes(query)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function openModal(imageId) {
+            document.getElementById(`modal-${imageId}`).classList.add('show');
+        }
+
+        function addGridItem(title, imageUrl) {
+            const grid = document.getElementById('main-grid');
+            const gridItem = document.createElement('div');
+            gridItem.className = 'grid-item';
+            gridItem.innerHTML = `
+                <img src="${imageUrl}" alt="${title}">
+                <div class="title">${title}</div>
+            `;
+            gridItem.onclick = () => showSection(`${title.toLowerCase()}-section`);
+            grid.appendChild(gridItem);
+        }
+    </script>
+</head>
+<body>
+    <a href="https://example.com" class="background-link"></a>
+    <header>
+        <div class="menu-icon">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <h1>Spiral Snapshots</h1>
+    </header>
+    <div id="main-grid" class="grid section">
+        <div class="search-bar">
+            <input id="search-input" type="text" placeholder="Search..." oninput="filterItems()">
+        </div>
+        <div class="grid-item" onclick="showSection('cars-section')">
+            <img src="https://th.bing.com/th/id/OIG2.l6QGABScFEDJddk2UbN6?pid=ImgGn" alt="Cars">
+            <div class="title">Cars</div>
+        </div>
+        <div class="grid-item" onclick="showSection('nature-section')">
+            <img src="https://th.bing.com/th/id/OIG1.2qKH.TDYDgE5EC0UNNOw?pid=ImgGn" alt="Nature">
+            <div class="title">Nature</div>
+        </div>
+        <div class="grid-item" onclick="showSection('galaxy-section')">
+            <img src="https://th.bing.com/th/id/OIG2.7MHmcCyvYKNYrSaadhxm?pid=ImgGn" alt="Galaxy">
+            <div class="title">Galaxy</div>
+        </div>
+    </div>
+    <div id="cars-section" class="gallery section hidden">
+        <div class="back-button">
+            <button onclick="showSection('main-grid')">Back</button>
+        </div>
+        <div class="gallery-item">
+            <img src="https://th.bing.com/th/id/OIP.pZkHnGbBrB8J8I-15AIe_QAAAA?w=320&h=480&rs=1&pid=ImgDetMain" alt="Car 1" onclick="openModal('car1.jpg')">
+        </div>
+        <div class="gallery-item">
+            <img src="https://i.pinimg.com/originals/24/14/18/241418c1808f05e0e65e9958e5787492.jpg" alt="Car 2" onclick="openModal('car2.jpg')">
+        </div>
+        <!-- Add more images here -->
+    </div>
+    <div id="nature-section" class="gallery section hidden">
+        <div class="back-button">
+            <button onclick="showSection('main-grid')">Back</button>
+        </div>
+        <div class="gallery-item">
+            <img src="https://i.pinimg.com/originals/24/f0/5c/24f05ce6cd23d9a9d831b93d626e2a7c.jpg" alt="Nature 1" onclick="openModal('nature1.jpg')">
+        </div>
+        <div class="gallery-item">
+            <img src="https://i.pinimg.com/originals/e8/2e/5a/e82e5a28c505534fce2502bde825244e.jpg" alt="Nature 2" onclick="openModal('nature2.jpg')">
+        </div>
+        <!-- Add more images here -->
+    </div>
+    <div id="galaxy-section" class="gallery section hidden">
+        <div class="back-button">
+            <button onclick="showSection('main-grid')">Back</button>
+        </div>
+        <div class="gallery-item">
+            <img src="https://th.bing.com/th/id/OIP.1ysJJKXJeVTvS-kQbdquVwHaMW?rs=1&pid=ImgDetMain" alt="Galaxy 1" onclick="openModal('galaxy1.jpg')">
+        </div>
+        <div class="gallery-item">
+            <img src="https://wallpapers.com/images/hd/stunning-high-definition-visualization-of-the-solar-system-dwy576hapbozmmoe.jpg" alt="Galaxy 2" onclick="openModal('galaxy2.jpg')">
+        </div>
+        <!-- Add more images here -->
+    </div>
+    <div class="floating-menu">
+        <div class="floating-menu-content">
+            <h2>Change Color</h2>
+            <button class="color-button" data-color="#4CAF50" data-background="https://img.freepik.com/premium-photo/close-up-green-light-shining-black-background-generative-ai_900833-13313.jpg">Green</button>
+            <button class="color-button" data-color="#FF5733" data-background="https://img.freepik.com/premium-photo/hexagonal-abstract-metal-background-with-light_148840-4642.jpg">Orange</button>
+            <button class="color-button" data-color="#3498DB" data-background="https://img.freepik.com/premium-photo/abstract-futuristic-technology-modern-style-blue-glowing-neon-background-wallpaper-banner-generative-ai_159242-25739.jpg">Blue</button>
+            <button class="color-button" data-color="#9B59B6" data-background="https://img.freepik.com/premium-photo/broken-glass-purple-technology-abstract-background_636585-1072.jpg">Purple</button>
+            <button class="color-button" data-color="#E74C3C" data-background="https://img.freepik.com/premium-photo/black-abstract-diagonal-overlap-layers-background-with-red-light-decoration-generative-ai_208978-2628.jpg">Red</button>
+            <button class="color-button" data-color="#F1C40F" data-background="https://image.slidesdocs.com/responsive-images/background/elegant-blend-of-geometry-and-texture-a-modern-abstract-with-a-golden-powerpoint-background_cb4cf7d100__960_540.jpg">Yellow</button>
+        </div>
+    </div>
+    <div id="modal-car1.jpg" class="image-modal">
+        <div class="image-modal-content">
+            <button class="close-modal">×</button>
+            <img src="https://th.bing.com/th/id/OIP.pZkHnGbBrB8J8I-15AIe_QAAAA?w=320&h=480&rs=1&pid=ImgDetMain" alt="Car 1">
+        </div>
+    </div>
+    <div id="modal-car2.jpg" class="image-modal">
+        <div class="image-modal-content">
+            <button class="close-modal">×</button>
+            <img src="https://i.pinimg.com/originals/24/14/18/241418c1808f05e0e65e9958e5787492.jpg" alt="Car 2">
+        </div>
+    </div>
+    <div id="modal-nature1.jpg" class="image-modal">
+        <div class="image-modal-content">
+            <button class="close-modal">×</button>
+            <img src="https://i.pinimg.com/originals/24/f0/5c/24f05ce6cd23d9a9d831b93d626e2a7c.jpg" alt="Nature 1">
+        </div>
+    </div>
+    <div id="modal-nature2.jpg" class="image-modal">
+        <div class="image-modal-content">
+            <button class="close-modal">×</button>
+            <img src="https://i.pinimg.com/originals/e8/2e/5a/e82e5a28c505534fce2502bde825244e.jpg" alt="Nature 2">
+        </div>
+    </div>
+    <div id="modal-galaxy1.jpg" class="image-modal">
+        <div class="image-modal-content">
+            <button class="close-modal">×</button>
+            <img src="https://th.bing.com/th/id/OIP.1ysJJKXJeVTvS-kQbdquVwHaMW?rs=1&pid=ImgDetMain" alt="Galaxy 1">
+        </div>
+    </div>
+    <div id="modal-galaxy2.jpg" class="image-modal">
+        <div class="image-modal-content">
+            <button class="close-modal">×</button>
+            <img src="https://wallpapers.com/images/hd/stunning-high-definition-visualization-of-the-solar-system-dwy576hapbozmmoe.jpg" alt="Galaxy 2">
+        </div>
+    </div>
+</body>
+</html>
